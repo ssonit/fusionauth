@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, getServerSession } from "next-auth";
 import FusionAuthProvider from "next-auth/providers/fusionauth";
 
 const fusionAuthIssuer = process.env.FUSIONAUTH_ISSUER;
@@ -25,7 +25,6 @@ if (!fusionAuthTenantId) {
 }
 
 export const authOptions: AuthOptions = {
-  jwt: {},
   providers: [
     FusionAuthProvider({
       issuer: fusionAuthIssuer,
@@ -35,6 +34,19 @@ export const authOptions: AuthOptions = {
       tenantId: fusionAuthTenantId, // Only required if you're using multi-tenancy
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      const res = await fetch(`http://localhost:9011/api/user/${token.sub}`, {
+        headers: {
+          Authorization:
+            "OvNYdCKmPGij4AA29xc2pYl1gxA5wB8lNyO714uxMjNDNnKHSj3dopa3",
+        },
+      });
+      const data = await res.json();
+      session.user = data.user;
+      return session;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
