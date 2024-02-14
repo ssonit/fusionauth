@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../styles/globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import SessionProvider from "@/components/SessionProvider";
+import ToasterProvider from "@/providers/toast-provider";
+import { cn } from "@/lib/utils";
+import { AppContextProvider } from "@/providers/app-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +24,10 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <SessionProvider session={session}>
-        <body className={inter.className}>{children}</body>
+        <body className={cn("min-h-screen bg-[#f4f6f8]", inter.className)}>
+          <AppContextProvider>{children}</AppContextProvider>
+          <ToasterProvider></ToasterProvider>
+        </body>
       </SessionProvider>
     </html>
   );
