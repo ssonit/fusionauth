@@ -1,10 +1,9 @@
-import { Image, Product } from '@prisma/client';
+export type ProductImage = any;
+//  Product & {
+//   images: Image[];
+// };
 
-export type ProductImage = Product & {
-  images: Image[];
-};
-
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export interface ProductCheckout {
   id: string;
