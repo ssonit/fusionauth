@@ -16,6 +16,11 @@ export class ProductController {
     return this.productService.getProducts(query)
   }
 
+  @Get(':id')
+  getProductId(@Param('id') id: string) {
+    return this.productService.getProductId(id)
+  }
+
   @Put(':id')
   updateProduct(@Body() body: UpdateProductDto, @Param('id') id: string) {
     return this.productService.updateProduct({

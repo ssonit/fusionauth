@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Product } from 'src/schemas/Product.schema'
@@ -6,6 +6,7 @@ import { CreateProductDto, QueryProductDto, UpdateProductDto } from './dto'
 import { ImageService } from 'src/image/image.service'
 import { ColorService } from 'src/color/color.service'
 import { StorageService } from 'src/storage/storage.service'
+import { SortDirection } from 'src/utils/enums'
 
 @Injectable()
 export class ProductService {
@@ -17,90 +18,143 @@ export class ProductService {
   ) {}
 
   async createProduct(payload: CreateProductDto) {
-    const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
+    try {
+      const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
 
-    const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
+      const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
 
-    const storages = await this.storageService.upsertMultiStorage(
-      payload.specs.map((item) => ({
-        name: item.storage.name,
-        unit: item.storage.unit
+      const storages = await this.storageService.upsertMultiStorage(
+        payload.specs.map((item) => ({
+          name: item.storage.name,
+          unit: item.storage.unit
+        }))
+      )
+
+      const specs = payload.specs.map((item, index) => ({
+        color: colors[index]._id,
+        storage: storages[index]._id,
+        quantity: item.quantity,
+        price: item.price
       }))
-    )
 
-    const specs = payload.specs.map((item, index) => ({
-      color: colors[index]._id,
-      storage: storages[index]._id,
-      quantity: item.quantity,
-      price: item.price
-    }))
+      const createdProduct = new this.productModel({
+        name: payload.name,
+        description: payload.description,
+        user_id: payload.user_id,
+        images,
+        specs
+      })
 
-    const createdProduct = new this.productModel({
-      name: payload.name,
-      description: payload.description,
-      user_id: payload.user_id,
-      images,
-      specs
-    })
-
-    const new_product = await createdProduct.save()
-    return new_product
+      const new_product = await createdProduct.save()
+      return { data: new_product }
+    } catch (error) {
+      return error
+    }
   }
 
-  getProducts(payload: QueryProductDto) {
-    const page = Number(payload.page) || 1
-    const limit = Number(payload.limit) || 10
+  async getProducts(payload: QueryProductDto) {
+    try {
+      const page = Number(payload.page) || 1
+      const limit = Number(payload.limit) || 10
 
-    // const { search, user_id } = payload
+      const sort = payload.sort || 'createdAt'
+      const dir = payload.dir || SortDirection.DESC
 
-    if (page <= 0) throw new BadRequestException('Page must be greater than zero')
+      const { search, user_id } = payload
 
-    const per_page = (page - 1) * limit
+      if (page <= 0) throw new BadRequestException('Page must be greater than zero')
 
-    return this.productModel
-      .find({
-        $or: [{}]
-      })
-      .limit(limit)
-      .skip(per_page)
-      .sort({
-        createdAt: 'desc'
-      })
-      .populate(['images', 'specs.color', 'specs.storage'])
+      const per_page = (page - 1) * limit
+
+      let filter = {}
+      if (search)
+        filter = {
+          $text: {
+            $search: search
+          }
+        }
+
+      if (user_id) filter['user_id'] = user_id
+
+      const [data, total] = await Promise.all([
+        this.productModel
+          .find(filter)
+          .limit(limit)
+          .skip(per_page)
+          .sort({
+            [sort]: dir
+          })
+          .populate(['images', 'specs.color', 'specs.storage']),
+        this.productModel.aggregate([
+          {
+            $match: filter
+          },
+          {
+            $count: 'total'
+          }
+        ])
+      ])
+
+      return {
+        data,
+        page,
+        per_page,
+        total: total[0]?.total || 0
+      }
+    } catch (error) {
+      return error
+    }
   }
 
   async updateProduct({ id, payload }: { id: string; payload: UpdateProductDto }) {
-    const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
+    try {
+      const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
 
-    const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
+      const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
 
-    const storages = await this.storageService.upsertMultiStorage(
-      payload.specs.map((item) => ({
-        name: item.storage.name,
-        unit: item.storage.unit
+      const storages = await this.storageService.upsertMultiStorage(
+        payload.specs.map((item) => ({
+          name: item.storage.name,
+          unit: item.storage.unit
+        }))
+      )
+
+      const specs = payload.specs.map((item, index) => ({
+        color: colors[index]._id,
+        storage: storages[index]._id,
+        quantity: item.quantity,
+        price: item.price
       }))
-    )
 
-    const specs = payload.specs.map((item, index) => ({
-      color: colors[index]._id,
-      storage: storages[index]._id,
-      quantity: item.quantity,
-      price: item.price
-    }))
+      const updatedProduct = await this.productModel.findByIdAndUpdate(
+        id,
+        {
+          name: payload.name,
+          description: payload.description,
+          images,
+          specs
+        },
+        { new: true }
+      )
 
-    const updatedProduct = await this.productModel.findByIdAndUpdate(
-      id,
-      {
-        name: payload.name,
-        description: payload.description,
-        images,
-        specs
-      },
-      { new: true }
-    )
-
-    return updatedProduct
+      return {
+        data: updatedProduct
+      }
+    } catch (error) {
+      return error
+    }
   }
 
   async deleteProduct() {}
+
+  async getProductId(id: string) {
+    try {
+      const product = await this.productModel.findById(id)
+      if (!product) throw new NotFoundException('Product not found')
+
+      return product.populate(['images', 'specs.color', 'specs.storage'])
+    } catch (error) {
+      return error
+    }
+  }
 }

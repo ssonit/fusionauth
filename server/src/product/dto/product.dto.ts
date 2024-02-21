@@ -11,7 +11,7 @@ import {
   IsString,
   ValidateNested
 } from 'class-validator'
-import { UnitStorage } from 'src/utils/enums'
+import { SortDirection, UnitStorage } from 'src/utils/enums'
 
 class Storage {
   @IsNotEmpty()
@@ -100,4 +100,12 @@ export class QueryProductDto {
   @IsOptional()
   @IsString()
   user_id: string
+
+  @IsOptional()
+  @IsString()
+  sort: string
+
+  @IsOptional()
+  @IsEnum(SortDirection)
+  dir: SortDirection
 }
