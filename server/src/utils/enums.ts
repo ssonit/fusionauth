@@ -7,3 +7,8 @@ export enum SortDirection {
   ASC = 'asc',
   DESC = 'desc'
 }
+
+export enum PaymentType {
+  COD,
+  ZALO
+}

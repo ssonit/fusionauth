@@ -45,8 +45,8 @@ export class ProductService {
         specs
       })
 
-      const new_product = await createdProduct.save()
-      return { data: new_product }
+      const newProduct = await createdProduct.save()
+      return { data: newProduct }
     } catch (error) {
       return error
     }
@@ -60,7 +60,7 @@ export class ProductService {
       const sort = payload.sort || 'createdAt'
       const dir = payload.dir || SortDirection.DESC
 
-      const { search, user_id } = payload
+      const { search, user_id, ids } = payload
 
       if (page <= 0) throw new BadRequestException('Page must be greater than zero')
 
@@ -75,6 +75,16 @@ export class ProductService {
         }
 
       if (user_id) filter['user_id'] = user_id
+
+      // ids = id1,id2
+
+      if (ids) {
+        filter['_id'] = {
+          $in: ids.split(',')
+        }
+      }
+
+      console.log(filter)
 
       const [data, total] = await Promise.all([
         this.productModel
@@ -98,7 +108,7 @@ export class ProductService {
       return {
         data,
         page,
-        per_page,
+        limit,
         total: total[0]?.total || 0
       }
     } catch (error) {

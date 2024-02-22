@@ -49,6 +49,7 @@ export class CreateProductDto {
   @IsString()
   name: string
 
+  @IsOptional()
   @IsString()
   description: string
 
@@ -108,4 +109,8 @@ export class QueryProductDto {
   @IsOptional()
   @IsEnum(SortDirection)
   dir: SortDirection
+
+  @IsOptional()
+  @IsString()
+  ids: string
 }
