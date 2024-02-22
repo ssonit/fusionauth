@@ -19,40 +19,43 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ProductImage } from "@/types/products";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { IColor, IImage, IProduct, IStorage } from "@/types/products";
+import { unitStorage } from "@/utils/constants";
 
-type Color = any;
-
-export default function InfoProduct({
-  product,
-  colors,
-}: {
-  product: ProductImage;
-  colors: Color[];
-}) {
+export default function InfoProduct({ product }: { product: IProduct }) {
   const router = useRouter();
-  const { images, name, price, description, id } = product;
+  const { images, name, description, _id: id, specs } = product;
+  const price = specs?.[0].price || 0;
+  const url = (images as IImage[])?.[0].url;
+
+  const colors = specs.map((item) => item.color) as IColor[];
+  const storages = specs.map((item) => item.storage) as IStorage[];
+
   const [quantity, setQuantity] = useState(1);
   const handleChange = (value: number) => {
     setQuantity(value);
   };
 
-  const [selectedColor, setSelectedColor] = useState(() => colors[0].id);
+  const [selectedColor, setSelectedColor] = useState(() => colors[0]._id);
+  const [selectedStorage, setSelectedStorage] = useState(() => storages[0]._id);
 
   const handleSelectedColor = (id: string) => {
     setSelectedColor(id);
+  };
+  const handleSelectedStorage = (id: string) => {
+    setSelectedStorage(id);
   };
 
   const handleAddCart = async () => {
     try {
       // Nên thêm disabled để tránh người dùng spam liên tục
-      await axios.post("/api/cart", {
-        quantity,
-        colorId: selectedColor,
-        productId: id,
-      });
+      // await axios.post("/api/cart", {
+      //   quantity,
+      //   colorId: selectedColor,
+      //   productId: id,
+      // });
 
       router.refresh();
       toast.success("Đã thêm vào giỏ hàng");
@@ -60,6 +63,8 @@ export default function InfoProduct({
       console.log(error);
     }
   };
+
+  console.log({ quantity, selectedColor });
 
   return (
     <div>
@@ -69,7 +74,7 @@ export default function InfoProduct({
             <div className="p-2">
               <AspectRatio ratio={1 / 1} className="relative w-full">
                 <Image
-                  src={images[0].url}
+                  src={url}
                   alt={name}
                   className="h-full w-full select-none rounded-md object-cover transition"
                   fill
@@ -82,13 +87,6 @@ export default function InfoProduct({
           <div className="col-span-1 mt-16 md:mt-0 lg:col-span-7">
             <CardHeader className="px-3 pb-4">
               <CardTitle className="text-2xl">{name}</CardTitle>
-              {/* <div className='flex items-center gap-1'>
-                <Icons.Star></Icons.Star>
-                <Icons.Star></Icons.Star>
-                <Icons.Star></Icons.Star>
-                <Icons.Star></Icons.Star>
-                <Icons.Star></Icons.Star>
-              </div> */}
               <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent className="px-3 pb-3">
@@ -98,29 +96,47 @@ export default function InfoProduct({
               <div className="mt-6 flex items-center gap-6">
                 <span className="w-20">Màu</span>
                 <div className="flex items-center gap-3">
-                  {colors.map((color) => (
+                  {colors.map((item) => (
                     <Button
-                      key={color.id}
+                      key={item._id}
                       variant={"ghost"}
                       size={"icon"}
-                      onClick={() => handleSelectedColor(color.id)}
+                      onClick={() => handleSelectedColor(item._id)}
                       className={cn(
-                        "flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200"
+                        "flex items-center border-2 w-full px-3 h-8 justify-center transition-all duration-200"
                       )}
                       style={{
-                        border: `2px solid ${
-                          color.id === selectedColor
-                            ? color.value
-                            : "transparent"
-                        }`,
+                        backgroundColor:
+                          item._id === selectedColor ? "purple" : "transparent",
+                        color: item._id === selectedColor ? "white" : "black",
                       }}
                     >
-                      <div
-                        className="h-4 w-4 rounded-full"
-                        style={{
-                          backgroundColor: color.value,
-                        }}
-                      ></div>
+                      {item.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-6">
+                <span className="w-20">Dung lượng</span>
+                <div className="flex items-center gap-3">
+                  {storages.map((item) => (
+                    <Button
+                      key={item._id}
+                      variant={"ghost"}
+                      size={"icon"}
+                      onClick={() => handleSelectedStorage(item._id)}
+                      className={cn(
+                        "flex items-center border-2 w-full px-3 h-8 justify-center transition-all duration-200"
+                      )}
+                      style={{
+                        backgroundColor:
+                          item._id === selectedStorage
+                            ? "purple"
+                            : "transparent",
+                        color: item._id === selectedStorage ? "white" : "black",
+                      }}
+                    >
+                      {item.name} {unitStorage[item.unit]}
                     </Button>
                   ))}
                 </div>
@@ -145,14 +161,6 @@ export default function InfoProduct({
                 data={[
                   {
                     id,
-                    image: images[0].url,
-                    name,
-                    color: {
-                      name: colors.find((item) => item.id === selectedColor)
-                        ?.name as string,
-                      id: selectedColor,
-                    },
-                    price: Number(price.toString()),
                     quantity,
                   },
                 ]}
@@ -173,7 +181,7 @@ export default function InfoProduct({
         </CardContent>
       </Card>
 
-      <RelatedProduct className="mb-5"></RelatedProduct>
+      {/* <RelatedProduct className="mb-5"></RelatedProduct> */}
     </div>
   );
 }

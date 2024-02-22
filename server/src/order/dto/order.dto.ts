@@ -3,6 +3,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -12,14 +13,17 @@ import {
 import { PaymentType } from 'src/utils/enums'
 
 class ProductOrder {
+  @IsMongoId()
   @IsNotEmpty()
   @IsString()
   product_id: string
 
+  @IsMongoId()
   @IsNotEmpty()
   @IsString()
   color_id: string
 
+  @IsMongoId()
   @IsNotEmpty()
   @IsString()
   storage_id: string

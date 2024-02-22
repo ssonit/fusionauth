@@ -9,7 +9,10 @@ import { ProductCheckout } from "@/types/products";
 export default function ButtonBuyProduct({
   data,
 }: {
-  data: ProductCheckout[];
+  data: {
+    id: string;
+    quantity: number;
+  }[];
 }) {
   const router = useRouter();
 

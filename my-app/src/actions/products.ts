@@ -1,94 +1,40 @@
-import { LIMIT_PRODUCT } from "@/constants/utils";
-import { prisma } from "@/lib/prisma";
-import { SortDirection } from "@/types/products";
+"use server";
 
-export const getProducts = async (
-  sort: Record<string, SortDirection> = {
-    createdAt: "desc",
-  }
-) => {
-  const data = await prisma.product.findMany({
-    include: {
-      images: true,
-    },
-    orderBy: {
-      ...sort,
-    },
-  });
+import { TProductDetailResponse, TProductResponse } from "@/types/products";
 
-  return data;
-};
-
-export const getProductId = async ({ productId }: { productId: string }) => {
-  const data = await prisma.product.findUnique({
-    where: {
-      id: productId,
-    },
-    include: {
-      images: true,
-    },
-  });
-
-  return data;
-};
-
-export const getManageProducts = async ({
-  search,
+export const getProducts = async ({
   page,
   limit,
 }: {
-  search: string;
-  page: string;
-  limit: string;
+  page?: number;
+  limit?: number;
 }) => {
-  const { userId } = auth();
-  if (!userId)
-    return {
-      data: [],
-      total: 0,
-    };
-  const page_size = limit ? parseInt(limit) : LIMIT_PRODUCT;
-  const skip = parseInt(page) > 0 ? (parseInt(page) - 1) * page_size : 0;
+  const res = await fetch(
+    "http://localhost:3002/api/product?" +
+      new URLSearchParams({
+        page: page?.toString() || "1",
+        limit: limit?.toString() || "10",
+      }),
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-  const data = await prisma.product.findMany({
-    where: {
-      userId: userId as string,
-      OR: [
-        {
-          name: {
-            contains: search,
-          },
-        },
-        {
-          id: search,
-        },
-      ],
-    },
-    take: page_size,
-    skip: skip,
-    orderBy: {
-      createdAt: "desc",
+  const data: TProductResponse = await res.json();
+  return data;
+};
+
+export const getProductId = async (id: string) => {
+  const res = await fetch("http://localhost:3002/api/product/" + id, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
     },
   });
 
-  const total = await prisma.product.count({
-    where: {
-      userId: userId as string,
-      OR: [
-        {
-          name: {
-            contains: search,
-          },
-        },
-        {
-          id: search,
-        },
-      ],
-    },
-  });
-
-  return {
-    data,
-    total,
-  };
+  const data: TProductDetailResponse = await res.json();
+  return data;
 };

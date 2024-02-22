@@ -3,6 +3,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsNotEmptyObject,
   IsNumber,
@@ -24,6 +25,7 @@ class Storage {
 }
 
 class Inventory {
+  @IsMongoId()
   @IsNotEmpty()
   @IsString()
   color: string
@@ -59,6 +61,7 @@ export class CreateProductDto {
 
   @IsArray()
   @ArrayNotEmpty()
+  @IsMongoId({ each: true })
   images: string[]
 
   @IsArray()

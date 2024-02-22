@@ -9,6 +9,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api')
   app.useGlobalPipes(new ValidationPipe())
+  app.enableCors({
+    origin: '*'
+  })
 
   const config = new DocumentBuilder()
     .setTitle('E-commerce API Documentation')

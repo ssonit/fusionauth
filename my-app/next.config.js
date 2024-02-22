@@ -7,6 +7,7 @@ const nextConfig = {
       "d33wubrfki0l68.cloudfront.net",
       "picsum.photos",
       "images.unsplash.com",
+      "th.bing.com",
     ],
   },
 };

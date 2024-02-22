@@ -106,10 +106,13 @@ export class ProductService {
       ])
 
       return {
-        data,
-        page,
-        limit,
-        total: total[0]?.total || 0
+        data: {
+          data,
+          page,
+          limit,
+          total: total[0]?.total || 0
+        },
+        msg: 'Get products successfully'
       }
     } catch (error) {
       return error
@@ -161,8 +164,12 @@ export class ProductService {
     try {
       const product = await this.productModel.findById(id)
       if (!product) throw new NotFoundException('Product not found')
+      const data = await product.populate(['images', 'specs.color', 'specs.storage'])
 
-      return product.populate(['images', 'specs.color', 'specs.storage'])
+      return {
+        data,
+        msg: 'Get product by id successfully'
+      }
     } catch (error) {
       return error
     }
