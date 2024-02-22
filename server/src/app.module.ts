@@ -6,6 +6,7 @@ import { ColorModule } from './color/color.module'
 import { ImageModule } from './image/image.module'
 import { StorageModule } from './storage/storage.module'
 import { CartModule } from './cart/cart.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { CartModule } from './cart/cart.module';
     ColorModule,
     ImageModule,
     StorageModule,
-    CartModule
+    CartModule,
+    OrderModule
   ],
   controllers: [],
   providers: []

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
 import { CartService } from './cart.service'
 import { CreateCartDto, QueryCartDto } from './dto'
 
@@ -14,5 +14,10 @@ export class CartController {
   @Get('')
   getCartByUserId(@Query() query: QueryCartDto) {
     return this.cartService.getCartByUserId(query)
+  }
+
+  @Delete(':id')
+  deleteProductCart(@Param('id') id: string) {
+    return this.cartService.deleteProductCart(id)
   }
 }

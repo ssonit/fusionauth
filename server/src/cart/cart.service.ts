@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Cart } from 'src/schemas/Cart.schema'
@@ -140,6 +140,22 @@ export class CartService {
         page,
         limit,
         total: total[0]?.total || 0
+      }
+    } catch (error) {
+      return error
+    }
+  }
+
+  async deleteProductCart(product_id: string) {
+    try {
+      const result = await this.cartModel.findOneAndDelete({
+        product: product_id
+      })
+
+      if (!result) throw new NotFoundException('Not found product')
+
+      return {
+        message: 'Delete Product Cart Success'
       }
     } catch (error) {
       return error

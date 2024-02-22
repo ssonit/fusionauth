@@ -32,7 +32,7 @@ export class Order {
   quantity: number
 
   @Prop({
-    required: true,
+    required: false,
     default: false
   })
   isPaid: boolean
