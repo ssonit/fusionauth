@@ -32,9 +32,10 @@ export interface IProduct extends TimeTamps {
   _id: string;
   name: string;
   description: string;
+  price: number;
   user_id: string;
   images: IImage[] | string[] | string;
-  specs: IInventory[];
+  // specs: IInventory[];
 }
 
 export type TProductResponse = ResponseApi<{

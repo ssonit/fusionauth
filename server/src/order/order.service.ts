@@ -21,8 +21,6 @@ export class OrderService {
           notes,
           payment_type,
           product: item.product_id,
-          color: item.color_id,
-          storage: item.storage_id,
           quantity: item.quantity
         })
         return order

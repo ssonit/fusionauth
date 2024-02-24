@@ -4,8 +4,6 @@ import { Product, ProductSchema } from 'src/schemas/Product.schema'
 import { ProductService } from './product.service'
 import { ProductController } from './product.controller'
 import { ImageModule } from 'src/image/image.module'
-import { ColorModule } from 'src/color/color.module'
-import { StorageModule } from 'src/storage/storage.module'
 
 @Module({
   imports: [
@@ -15,9 +13,7 @@ import { StorageModule } from 'src/storage/storage.module'
         schema: ProductSchema
       }
     ]),
-    ImageModule,
-    ColorModule,
-    StorageModule
+    ImageModule
   ],
   controllers: [ProductController],
   providers: [ProductService]

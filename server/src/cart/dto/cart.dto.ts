@@ -11,16 +11,6 @@ export class CreateCartDto {
   @IsString()
   product: string
 
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  color: string
-
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  storage: string
-
   @IsNotEmpty()
   @IsNumber()
   quantity: number

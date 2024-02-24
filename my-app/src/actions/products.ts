@@ -20,6 +20,7 @@ export const getProducts = async ({
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-store",
     }
   );
 
@@ -33,6 +34,7 @@ export const getProductId = async (id: string) => {
     headers: {
       "Content-Type": "application/json",
     },
+    cache: "no-store",
   });
 
   const data: TProductDetailResponse = await res.json();

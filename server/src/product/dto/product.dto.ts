@@ -1,50 +1,5 @@
-import { Type } from 'class-transformer'
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested
-} from 'class-validator'
-import { SortDirection, UnitStorage } from 'src/utils/enums'
-
-class Storage {
-  @IsNotEmpty()
-  @IsString()
-  name: string
-
-  @IsNotEmpty()
-  @IsEnum(UnitStorage)
-  unit: UnitStorage
-}
-
-class Inventory {
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  color: string
-
-  @IsNotEmpty()
-  @IsNotEmptyObject()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => Storage)
-  storage: Storage
-
-  @IsNotEmpty()
-  @IsNumber()
-  quantity: number
-
-  @IsNotEmpty()
-  @IsNumber()
-  price: number
-}
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator'
+import { SortDirection } from 'src/utils/enums'
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -56,18 +11,20 @@ export class CreateProductDto {
   description: string
 
   @IsNotEmpty()
+  @IsNumber()
+  price: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  quantity: number
+
+  @IsNotEmpty()
   @IsString()
   user_id: string
 
   @IsArray()
   @ArrayNotEmpty()
-  @IsMongoId({ each: true })
   images: string[]
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Inventory)
-  specs: Inventory[]
 }
 
 export class UpdateProductDto {
@@ -78,14 +35,17 @@ export class UpdateProductDto {
   @IsString()
   description: string
 
+  @IsNotEmpty()
+  @IsNumber()
+  price: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  quantity: number
+
   @IsArray()
   @ArrayNotEmpty()
   images: string[]
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Inventory)
-  specs: Inventory[]
 }
 
 export class QueryProductDto {

@@ -21,25 +21,21 @@ import {
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { IColor, IImage, IProduct, IStorage } from "@/types/products";
-import { unitStorage } from "@/utils/constants";
+import { IImage, IProduct } from "@/types/products";
 
 export default function InfoProduct({ product }: { product: IProduct }) {
   const router = useRouter();
-  const { images, name, description, _id: id, specs } = product;
-  const price = specs?.[0].price || 0;
+  const { images, name, description, _id: id, price } = product;
   const url = (images as IImage[])?.[0].url;
 
-  const colors = specs.map((item) => item.color) as IColor[];
-  const storages = specs.map((item) => item.storage) as IStorage[];
-
   const [quantity, setQuantity] = useState(1);
+
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedStorage, setSelectedStorage] = useState("");
+
   const handleChange = (value: number) => {
     setQuantity(value);
   };
-
-  const [selectedColor, setSelectedColor] = useState(() => colors[0]._id);
-  const [selectedStorage, setSelectedStorage] = useState(() => storages[0]._id);
 
   const handleSelectedColor = (id: string) => {
     setSelectedColor(id);
@@ -63,8 +59,6 @@ export default function InfoProduct({ product }: { product: IProduct }) {
       console.log(error);
     }
   };
-
-  console.log({ quantity, selectedColor });
 
   return (
     <div>
@@ -93,7 +87,7 @@ export default function InfoProduct({ product }: { product: IProduct }) {
               <div className="rounded bg-gray-100 px-6 py-3 font-semibold text-red-600">
                 {price.toString()}
               </div>
-              <div className="mt-6 flex items-center gap-6">
+              {/* <div className="mt-6 flex items-center gap-6">
                 <span className="w-20">Màu</span>
                 <div className="flex items-center gap-3">
                   {colors.map((item) => (
@@ -140,7 +134,7 @@ export default function InfoProduct({ product }: { product: IProduct }) {
                     </Button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               <div className="mt-6 flex items-center gap-6">
                 <span className="w-20">Số lượng</span>

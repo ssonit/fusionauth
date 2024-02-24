@@ -11,12 +11,10 @@ export class CartService {
 
   async createCart(payload: CreateCartDto) {
     try {
-      const { user_id, product, color, storage, quantity } = payload
+      const { user_id, product, quantity } = payload
       const createdCart = new this.cartModel({
         user_id,
         product,
-        color,
-        storage,
         quantity
       })
 
@@ -61,6 +59,8 @@ export class CartService {
         }
       }
 
+      console.log(filter)
+
       const [data, total] = await Promise.all([
         this.cartModel.aggregate([
           {
@@ -71,53 +71,6 @@ export class CartService {
           },
           {
             $skip: per_page
-          },
-          {
-            $lookup: {
-              from: 'colors',
-              localField: 'color',
-              foreignField: '_id',
-              as: 'color'
-            }
-          },
-          {
-            $unwind: {
-              path: '$color'
-            }
-          },
-          {
-            $lookup: {
-              from: 'storages',
-              localField: 'storage',
-              foreignField: '_id',
-              as: 'storage'
-            }
-          },
-          {
-            $unwind: {
-              path: '$storage'
-            }
-          },
-          {
-            $lookup: {
-              from: 'products',
-              localField: 'product',
-              foreignField: '_id',
-              as: 'product'
-            }
-          },
-          {
-            $unwind: {
-              path: '$product'
-            }
-          },
-          {
-            $lookup: {
-              from: 'images',
-              localField: 'product.images',
-              foreignField: '_id',
-              as: 'product.images'
-            }
           },
           {
             $sort: {

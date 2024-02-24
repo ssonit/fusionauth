@@ -18,16 +18,6 @@ class ProductOrder {
   @IsString()
   product_id: string
 
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  color_id: string
-
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  storage_id: string
-
   @IsNotEmpty()
   @IsNumber()
   quantity: number

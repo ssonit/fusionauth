@@ -13,9 +13,8 @@ import {
 import { IImage, IProduct } from "@/types/products";
 
 export default function ProductItem({ product }: { product: IProduct }) {
-  const { images, name, _id, specs } = product;
+  const { images, name, _id, price } = product;
 
-  const price = specs[0].price || 0;
   const url = (images as IImage[])[0].url;
 
   return (

@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import mongoose from 'mongoose'
-import { Color } from './Color.schema'
-import { Storage } from './Storage.schema'
+
 import { PaymentType } from 'src/utils/enums'
 import { Product } from './Product.schema'
 
@@ -15,18 +14,6 @@ export class Order {
     ref: 'Product'
   })
   product: Product
-
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Color'
-  })
-  color: Color
-
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Storage'
-  })
-  storage: Storage
 
   @Prop({ required: true })
   quantity: number

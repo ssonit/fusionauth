@@ -4,48 +4,30 @@ import { Model } from 'mongoose'
 import { Product } from 'src/schemas/Product.schema'
 import { CreateProductDto, QueryProductDto, UpdateProductDto } from './dto'
 import { ImageService } from 'src/image/image.service'
-import { ColorService } from 'src/color/color.service'
-import { StorageService } from 'src/storage/storage.service'
 import { SortDirection } from 'src/utils/enums'
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    private imageService: ImageService,
-    private colorService: ColorService,
-    private storageService: StorageService
+    private imageService: ImageService
   ) {}
 
   async createProduct(payload: CreateProductDto) {
     try {
       const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
 
-      const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
-
-      const storages = await this.storageService.upsertMultiStorage(
-        payload.specs.map((item) => ({
-          name: item.storage.name,
-          unit: item.storage.unit
-        }))
-      )
-
-      const specs = payload.specs.map((item, index) => ({
-        color: colors[index]._id,
-        storage: storages[index]._id,
-        quantity: item.quantity,
-        price: item.price
-      }))
-
       const createdProduct = new this.productModel({
         name: payload.name,
         description: payload.description,
         user_id: payload.user_id,
-        images,
-        specs
+        price: payload.price,
+        quantity: payload.quantity,
+        images
       })
 
       const newProduct = await createdProduct.save()
+
       return { data: newProduct }
     } catch (error) {
       return error
@@ -94,7 +76,7 @@ export class ProductService {
           .sort({
             [sort]: dir
           })
-          .populate(['images', 'specs.color', 'specs.storage']),
+          .populate(['images']),
         this.productModel.aggregate([
           {
             $match: filter
@@ -123,29 +105,14 @@ export class ProductService {
     try {
       const images = await this.imageService.checkAndCreateImage(payload.images.map((i) => ({ url: i })))
 
-      const colors = await this.colorService.checkAndCreateColor(payload.specs.map((i) => ({ name: i.color })))
-
-      const storages = await this.storageService.upsertMultiStorage(
-        payload.specs.map((item) => ({
-          name: item.storage.name,
-          unit: item.storage.unit
-        }))
-      )
-
-      const specs = payload.specs.map((item, index) => ({
-        color: colors[index]._id,
-        storage: storages[index]._id,
-        quantity: item.quantity,
-        price: item.price
-      }))
-
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         {
           name: payload.name,
           description: payload.description,
-          images,
-          specs
+          price: payload.price,
+          quantity: payload.quantity,
+          images
         },
         { new: true }
       )
@@ -164,7 +131,7 @@ export class ProductService {
     try {
       const product = await this.productModel.findById(id)
       if (!product) throw new NotFoundException('Product not found')
-      const data = await product.populate(['images', 'specs.color', 'specs.storage'])
+      const data = await product.populate(['images'])
 
       return {
         data,
