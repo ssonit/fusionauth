@@ -13,35 +13,42 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ProductImage } from "@/types/products";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+import instance from "@/lib/instance";
+import { useSession } from "next-auth/react";
+import { IImage, IProduct } from "@/types/products";
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  price: z.coerce.number(),
+  price: z.coerce.number().positive(),
+  quantity: z.coerce.number().positive(),
   description: z.string(),
   images: z.object({ url: z.string() }).array(),
 });
 
-export default function ProductForm({ initData }: { initData?: ProductImage }) {
+export default function ProductForm({ initData }: { initData?: IProduct }) {
   const router = useRouter();
+  const { data } = useSession();
 
   const defaultValues = initData
     ? {
         name: initData.name,
         price: Number(initData.price.toString()),
+        quantity: Number(initData.quantity.toString()),
         description: initData.description,
-        images: initData.images,
+        images: (initData.images as IImage[]).map((item) => ({
+          url: item.url,
+        })),
       }
     : {
         name: "",
         price: 0,
+        quantity: 0,
         description: "",
         images: [],
       };
@@ -58,12 +65,19 @@ export default function ProductForm({ initData }: { initData?: ProductImage }) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (initData) {
-        await axios.put(`/api/products/${initData.id}`, values);
+        await instance.put(`/api/product/${initData._id}`, {
+          ...values,
+          images: values.images.map((item) => item.url),
+        });
       } else {
-        await axios.post("/api/products/create", values);
+        await instance.post("/api/product/create", {
+          ...values,
+          images: values.images.map((item) => item.url),
+          user_id: (data?.user as any).id,
+        });
       }
       router.refresh();
-      router.push("/products/manage");
+      // router.push("/products/manage");
       toast.success(`${initData ? "Cập nhật" : "Tạo"} sản phẩm thành công`);
     } catch (error) {
       console.log(error);
@@ -113,12 +127,13 @@ export default function ProductForm({ initData }: { initData?: ProductImage }) {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="price"
+            name="quantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Giá</FormLabel>
+                <FormLabel>Số lượng</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -132,6 +147,25 @@ export default function ProductForm({ initData }: { initData?: ProductImage }) {
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Giá</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  disabled={isSubmitting}
+                  placeholder="9.99"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

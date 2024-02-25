@@ -1,8 +1,13 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ProductForm from "@/components/ProductForm";
 import SectionTitle from "@/components/SectionTitle";
 import { Separator } from "@/components/ui/separator";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-export default function CreateProduct() {
+export default async function CreateProduct() {
+  const session = await getServerSession(authOptions);
+  if (!session) return redirect("/login");
   return (
     <section>
       <div className="container">

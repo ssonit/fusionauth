@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TCartProductItem } from "@/types/carts";
-import axios from "axios";
 import toast from "react-hot-toast";
+import instance from "@/lib/instance";
+import { IImage } from "@/types/products";
 
 export default function CartProductItem({
   cartItem,
@@ -26,13 +27,12 @@ export default function CartProductItem({
   handleDelete: (id: string) => void;
 }) {
   const {
-    product: { images, name },
-    color,
-    id,
+    product: { images, name, price },
+    _id,
     checked,
   } = cartItem;
 
-  const price = Number(cartItem.product.price.toString());
+  const imageUrl = (images as IImage[])[0].url;
 
   const router = useRouter();
   const [quantity, setQuantity] = useState(() => cartItem.quantity);
@@ -40,14 +40,14 @@ export default function CartProductItem({
   const handleChangeValue = (value: number) => {
     setQuantity(value);
     handleChange({
-      id,
+      id: _id,
       quantity: value,
     });
   };
 
   const handleDeleteCart = async (id: string) => {
     try {
-      const res = await axios.delete(`/api/cart/${id}`);
+      const res = await instance.delete(`/api/cart/${id}`);
       const data = res.data;
 
       handleDelete(id);
@@ -66,16 +66,16 @@ export default function CartProductItem({
       <Checkbox
         className="mt-4"
         checked={checked}
-        onCheckedChange={() => handleChecked({ id, checked: !checked })}
+        onCheckedChange={() => handleChecked({ id: _id, checked: !checked })}
       ></Checkbox>
       <div
-        onClick={() => router.push(`/${cartItem.product.id}`)}
+        onClick={() => router.push(`/${cartItem.product._id}`)}
         className="flex flex-1 cursor-pointer gap-3"
       >
         <div className="w-24">
           <AspectRatio ratio={3 / 4} className="relative h-full">
             <Image
-              src={images[0].url}
+              src={imageUrl}
               alt={name}
               className="h-full w-full select-none rounded-md object-cover transition"
               fill
@@ -89,7 +89,6 @@ export default function CartProductItem({
           <p className="font-semibold text-muted-foreground">
             {price.toString()}
           </p>
-          <p>Màu: {color.name}</p>
         </div>
       </div>
 
@@ -99,7 +98,7 @@ export default function CartProductItem({
           handleChange={handleChangeValue}
         ></Quantity>
         <p className="w-14 text-center font-medium">{quantity * price}</p>
-        <Button onClick={() => handleDeleteCart(id)} variant={"destructive"}>
+        <Button onClick={() => handleDeleteCart(_id)} variant={"destructive"}>
           <Icons.Trash className="h-5 w-5"></Icons.Trash>
         </Button>
       </div>

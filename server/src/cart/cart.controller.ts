@@ -7,8 +7,8 @@ export class CartController {
   constructor(private cartService: CartService) {}
 
   @Post('create')
-  createCart(@Body() body: CreateCartDto) {
-    return this.cartService.createCart(body)
+  createProductCart(@Body() body: CreateCartDto) {
+    return this.cartService.createProductCart(body)
   }
 
   @Get('')

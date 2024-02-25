@@ -22,41 +22,49 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { IImage, IProduct } from "@/types/products";
+import instance from "@/lib/instance";
+import { useSession } from "next-auth/react";
 
 export default function InfoProduct({ product }: { product: IProduct }) {
   const router = useRouter();
-  const { images, name, description, _id: id, price } = product;
+  const { data } = useSession();
+  const user_id = (data?.user as any).id;
+
+  const {
+    images,
+    name,
+    description,
+    _id: id,
+    price,
+    quantity: max_quantity,
+  } = product;
   const url = (images as IImage[])?.[0].url;
 
   const [quantity, setQuantity] = useState(1);
-
-  const [selectedColor, setSelectedColor] = useState("");
-  const [selectedStorage, setSelectedStorage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (value: number) => {
     setQuantity(value);
   };
 
-  const handleSelectedColor = (id: string) => {
-    setSelectedColor(id);
-  };
-  const handleSelectedStorage = (id: string) => {
-    setSelectedStorage(id);
-  };
+  console.log(id);
 
   const handleAddCart = async () => {
     try {
       // Nên thêm disabled để tránh người dùng spam liên tục
-      // await axios.post("/api/cart", {
-      //   quantity,
-      //   colorId: selectedColor,
-      //   productId: id,
-      // });
+      setIsLoading(true);
+      await instance.post("/api/cart/create", {
+        user_id,
+        quantity,
+        product: id,
+      });
 
       router.refresh();
       toast.success("Đã thêm vào giỏ hàng");
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,54 +95,6 @@ export default function InfoProduct({ product }: { product: IProduct }) {
               <div className="rounded bg-gray-100 px-6 py-3 font-semibold text-red-600">
                 {price.toString()}
               </div>
-              {/* <div className="mt-6 flex items-center gap-6">
-                <span className="w-20">Màu</span>
-                <div className="flex items-center gap-3">
-                  {colors.map((item) => (
-                    <Button
-                      key={item._id}
-                      variant={"ghost"}
-                      size={"icon"}
-                      onClick={() => handleSelectedColor(item._id)}
-                      className={cn(
-                        "flex items-center border-2 w-full px-3 h-8 justify-center transition-all duration-200"
-                      )}
-                      style={{
-                        backgroundColor:
-                          item._id === selectedColor ? "purple" : "transparent",
-                        color: item._id === selectedColor ? "white" : "black",
-                      }}
-                    >
-                      {item.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-6 flex items-center gap-6">
-                <span className="w-20">Dung lượng</span>
-                <div className="flex items-center gap-3">
-                  {storages.map((item) => (
-                    <Button
-                      key={item._id}
-                      variant={"ghost"}
-                      size={"icon"}
-                      onClick={() => handleSelectedStorage(item._id)}
-                      className={cn(
-                        "flex items-center border-2 w-full px-3 h-8 justify-center transition-all duration-200"
-                      )}
-                      style={{
-                        backgroundColor:
-                          item._id === selectedStorage
-                            ? "purple"
-                            : "transparent",
-                        color: item._id === selectedStorage ? "white" : "black",
-                      }}
-                    >
-                      {item.name} {unitStorage[item.unit]}
-                    </Button>
-                  ))}
-                </div>
-              </div> */}
 
               <div className="mt-6 flex items-center gap-6">
                 <span className="w-20">Số lượng</span>
@@ -142,13 +102,20 @@ export default function InfoProduct({ product }: { product: IProduct }) {
                   quantity={quantity}
                   handleChange={handleChange}
                 ></Quantity>
+                <span className="text-sm font-medium">
+                  {max_quantity} sản phẩm
+                </span>
               </div>
             </CardContent>
             <CardFooter className="mt-3 flex items-center gap-6 px-3 pb-2">
               <Button variant={"outline"}>
                 <Icons.Heart className="stroke-pink-500"></Icons.Heart>
               </Button>
-              <Button onClick={handleAddCart} variant={"outline"}>
+              <Button
+                disabled={isLoading}
+                onClick={handleAddCart}
+                variant={"outline"}
+              >
                 Thêm vào giỏ hàng
               </Button>
               <ButtonBuyProduct
@@ -175,7 +142,7 @@ export default function InfoProduct({ product }: { product: IProduct }) {
         </CardContent>
       </Card>
 
-      {/* <RelatedProduct className="mb-5"></RelatedProduct> */}
+      <RelatedProduct className="mb-5"></RelatedProduct>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export class ProductService {
 
       const newProduct = await createdProduct.save()
 
-      return { data: newProduct }
+      return { data: newProduct, msg: 'Create product successfully' }
     } catch (error) {
       return error
     }
@@ -49,12 +49,13 @@ export class ProductService {
       const per_page = (page - 1) * limit
 
       let filter = {}
-      if (search)
+      if (search) {
         filter = {
           $text: {
             $search: search
           }
         }
+      }
 
       if (user_id) filter['user_id'] = user_id
 
@@ -66,7 +67,7 @@ export class ProductService {
         }
       }
 
-      console.log(filter)
+      console.log({ filter })
 
       const [data, total] = await Promise.all([
         this.productModel

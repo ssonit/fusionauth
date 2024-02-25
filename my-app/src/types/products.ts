@@ -1,41 +1,18 @@
-import { ResponseApi } from "./utils";
-
-interface TimeTamps {
-  createdAt: string;
-  updatedAt: string;
-}
+import { ResponseApi, TimeTamps } from "./utils";
 
 export interface IImage extends TimeTamps {
   _id: string;
   url: string;
 }
 
-export interface IColor extends TimeTamps {
-  _id: string;
-  name: string;
-}
-export interface IStorage extends TimeTamps {
-  _id: string;
-  name: string;
-  code: string;
-  unit: number;
-}
-
-export interface IInventory {
-  _id: string;
-  quantity: number;
-  price: number;
-  color: IColor | string;
-  storage: IStorage | string;
-}
 export interface IProduct extends TimeTamps {
   _id: string;
   name: string;
   description: string;
+  quantity: number;
   price: number;
   user_id: string;
   images: IImage[] | string[] | string;
-  // specs: IInventory[];
 }
 
 export type TProductResponse = ResponseApi<{
@@ -47,7 +24,11 @@ export type TProductResponse = ResponseApi<{
 
 export type TProductDetailResponse = ResponseApi<IProduct>;
 
-export type SortDirection = "asc" | "desc";
+export type TSortDirection = "asc" | "desc";
+export enum ESortDirection {
+  ASC = "asc",
+  DESC = "desc",
+}
 
 export interface ProductCheckout {
   id: string;

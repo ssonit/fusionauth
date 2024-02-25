@@ -5,13 +5,9 @@ import ButtonBuyProduct from "@/components/ButtonBuyProduct";
 import CartProductItem from "@/components/CartProductItem";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { TCartProductItem } from "@/types/carts";
+import { IProductCart } from "@/types/carts";
 
-export default function CartMain({
-  initCarts,
-}: {
-  initCarts: TCartProductItem[];
-}) {
+export default function CartMain({ initCarts }: { initCarts: IProductCart[] }) {
   const [carts, setCarts] = useState(
     initCarts.map((item) => ({ ...item, checked: false }))
   );
@@ -42,7 +38,7 @@ export default function CartMain({
   }) => {
     setCarts((prev) =>
       prev.map((item) => {
-        if (item.id === id) {
+        if (item._id === id) {
           return {
             ...item,
             quantity,
@@ -56,7 +52,7 @@ export default function CartMain({
   const handleChecked = ({ id, checked }: { id: string; checked: boolean }) => {
     setCarts((prev) =>
       prev.map((item) => {
-        if (item.id === id) {
+        if (item._id === id) {
           return {
             ...item,
             checked,
@@ -77,7 +73,7 @@ export default function CartMain({
   };
 
   const handleDeleteCart = (id: string) => {
-    setCarts((prev) => prev.filter((item) => item.id !== id));
+    setCarts((prev) => prev.filter((item) => item._id !== id));
   };
 
   return (
@@ -100,7 +96,7 @@ export default function CartMain({
               <CardContent className="flex flex-col gap-2">
                 {carts.map((item) => (
                   <CartProductItem
-                    key={item.id}
+                    key={item._id}
                     cartItem={item}
                     handleChecked={({ id, checked }) =>
                       handleChecked({ id, checked })
@@ -129,16 +125,8 @@ export default function CartMain({
             data={carts
               .filter((item) => item.checked)
               .map((item) => ({
-                id: item.productId,
-                color: {
-                  name: item.color.name,
-                  id: item.colorId,
-                },
-                image: item.product.images[0].url,
-                name: item.product.name,
-                price: Number(item.product.price.toString()),
+                id: item._id,
                 quantity: item.quantity,
-                cartId: item.id,
               }))}
           ></ButtonBuyProduct>
         </div>

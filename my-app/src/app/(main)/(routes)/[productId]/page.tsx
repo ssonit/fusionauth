@@ -14,7 +14,7 @@ export default async function DetailProduct({
     <section>
       <div className="container">
         <div className="mt-10">
-          {/* <InfoProduct product={data}></InfoProduct> */}
+          <InfoProduct product={data}></InfoProduct>
         </div>
       </div>
       <Footer className="my-8"></Footer>

@@ -9,7 +9,7 @@ import { SortDirection } from 'src/utils/enums'
 export class CartService {
   constructor(@InjectModel(Cart.name) private cartModel: Model<Cart>) {}
 
-  async createCart(payload: CreateCartDto) {
+  async createProductCart(payload: CreateCartDto) {
     try {
       const { user_id, product, quantity } = payload
       const createdCart = new this.cartModel({
@@ -20,7 +20,8 @@ export class CartService {
 
       const newCart = await createdCart.save()
       return {
-        data: newCart
+        data: newCart,
+        msg: 'Create product cart successfully'
       }
     } catch (error) {
       return error
@@ -67,6 +68,25 @@ export class CartService {
             $match: filter
           },
           {
+            $lookup: {
+              from: 'products',
+              localField: 'product',
+              foreignField: '_id',
+              as: 'product'
+            }
+          },
+          {
+            $unwind: '$product'
+          },
+          {
+            $lookup: {
+              from: 'images',
+              localField: 'product.images',
+              foreignField: '_id',
+              as: 'product.images'
+            }
+          },
+          {
             $limit: limit
           },
           {
@@ -89,26 +109,27 @@ export class CartService {
       ])
 
       return {
-        data,
-        page,
-        limit,
-        total: total[0]?.total || 0
+        data: {
+          data,
+          page,
+          limit,
+          total: total[0]?.total || 0
+        },
+        msg: 'Get products cart successfully'
       }
     } catch (error) {
       return error
     }
   }
 
-  async deleteProductCart(product_id: string) {
+  async deleteProductCart(id: string) {
     try {
-      const result = await this.cartModel.findOneAndDelete({
-        product: product_id
-      })
+      const result = await this.cartModel.findByIdAndDelete(id)
 
-      if (!result) throw new NotFoundException('Not found product')
+      if (!result) throw new NotFoundException('Not found id')
 
       return {
-        message: 'Delete Product Cart Success'
+        msg: 'Delete Product Cart Success'
       }
     } catch (error) {
       return error

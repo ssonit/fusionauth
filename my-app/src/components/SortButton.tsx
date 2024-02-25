@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { SortDirection } from "@/types/products";
+import { TSortDirection } from "@/types/products";
 
-export default function SortButton({ dir }: { dir: SortDirection }) {
+export default function SortButton({ dir }: { dir: TSortDirection }) {
   const router = useRouter();
   return (
     <section className="my-5">
