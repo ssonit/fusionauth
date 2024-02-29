@@ -49,11 +49,11 @@ export class UpdateProductDto {
 }
 
 export class QueryProductDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   page: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   limit: string
 

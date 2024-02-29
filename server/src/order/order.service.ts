@@ -28,7 +28,7 @@ export class OrderService {
 
       const data = await this.orderModel.insertMany(created_orders)
 
-      return { data }
+      return { data, msg: 'Create many order successfully' }
     } catch (error) {
       return error
     }

@@ -7,3 +7,13 @@ export interface TimeTamps {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface User {
+  id: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
+}

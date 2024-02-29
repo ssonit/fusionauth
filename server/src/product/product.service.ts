@@ -67,7 +67,7 @@ export class ProductService {
         }
       }
 
-      console.log({ filter })
+      console.log(filter)
 
       const [data, total] = await Promise.all([
         this.productModel

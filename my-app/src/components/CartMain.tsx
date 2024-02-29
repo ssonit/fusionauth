@@ -125,7 +125,7 @@ export default function CartMain({ initCarts }: { initCarts: IProductCart[] }) {
             data={carts
               .filter((item) => item.checked)
               .map((item) => ({
-                id: item._id,
+                id: item.product._id,
                 quantity: item.quantity,
               }))}
           ></ButtonBuyProduct>

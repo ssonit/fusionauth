@@ -12,33 +12,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useDebounce from "@/hooks/useDebounce";
-
-type Product = {
-  id: string;
-  name: string;
-};
+import instance from "@/lib/instance";
+import { IProduct, TProductResponse } from "@/types/products";
 
 export default function SearchBar() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<IProduct[]>([]);
 
   const handleInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   };
 
-  const debouncedValue = useDebounce<string>(searchInput, 800);
+  const debouncedValue = useDebounce<string>(searchInput, 300);
 
   useEffect(() => {
     async function fetchData() {
-      //   try {
-      //     if (debouncedValue) {
-      //       const data = await axios.get<{ data: Product[] }>(`/api/products/search?search=${debouncedValue}`);
-      //       setProducts(data.data.data);
-      //     }
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
+      try {
+        if (debouncedValue) {
+          setIsLoading(true);
+          const res = await instance.get<TProductResponse>(
+            `/api/product?search=${debouncedValue}`
+          );
+          setProducts(res.data.data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     fetchData();
@@ -52,32 +55,39 @@ export default function SearchBar() {
         value={searchInput}
         onChange={handleInputChange}
       ></Input>
-      {products.length > 0 && searchInput && (
+      {searchInput && (
         <div className="absolute left-0 top-full w-full">
           <ScrollArea>
             <Command className="rounded-lg border shadow-md">
               <CommandList>
-                {products.length === 0 && (
-                  <CommandEmpty>No results found.</CommandEmpty>
-                )}
                 <CommandGroup heading="Kết quả tìm kiếm">
-                  {products.map((item) => (
-                    <CommandItem
-                      className="cursor-pointer p-0 hover:bg-accent hover:text-accent-foreground"
-                      key={item.id}
-                    >
-                      <div
-                        onClick={() => {
-                          setSearchInput("");
-                          setProducts([]);
-                          router.push(`/${item.id}`);
-                        }}
-                        className="w-full px-2 py-1.5"
+                  {!isLoading && products.length === 0 && (
+                    <CommandEmpty>No results found.</CommandEmpty>
+                  )}
+                  {!isLoading &&
+                    products.length > 0 &&
+                    products.map((item) => (
+                      <CommandItem
+                        className="cursor-pointer p-0 hover:bg-accent hover:text-accent-foreground"
+                        key={item._id}
                       >
-                        {item.name}
-                      </div>
-                    </CommandItem>
-                  ))}
+                        <div
+                          onClick={() => {
+                            setSearchInput("");
+                            setProducts([]);
+                            router.push(`/${item._id}`);
+                          }}
+                          className="w-full px-2 py-1.5"
+                        >
+                          {item.name}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  {isLoading && (
+                    <div className="flex items-center py-1.5 justify-center">
+                      loading...
+                    </div>
+                  )}
                 </CommandGroup>
               </CommandList>
             </Command>

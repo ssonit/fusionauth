@@ -6,7 +6,7 @@ import { CreateOrderManyDto } from './dto'
 export class OrderController {
   constructor(private orderService: OrderService) {}
 
-  @Post('/create')
+  @Post('/create-many')
   createOrderMany(@Body() body: CreateOrderManyDto) {
     return this.orderService.createOrderMany(body)
   }

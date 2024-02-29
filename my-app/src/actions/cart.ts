@@ -8,11 +8,13 @@ export const getProductsCart = async ({
   limit,
   sort,
   dir,
+  user_id,
 }: {
   page?: number;
   limit?: number;
   sort?: string;
   dir?: ESortDirection;
+  user_id?: string;
 }) => {
   const searchParams: {
     [key: string]: string;
@@ -23,6 +25,10 @@ export const getProductsCart = async ({
   if (sort && dir) {
     searchParams["sort"] = sort;
     searchParams["dir"] = dir;
+  }
+
+  if (user_id) {
+    searchParams["user_id"] = user_id;
   }
 
   const res = await fetch(
