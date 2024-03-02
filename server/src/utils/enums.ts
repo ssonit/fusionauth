@@ -12,3 +12,8 @@ export enum PaymentType {
   COD,
   ZALO
 }
+
+export enum CurrencyWallet {
+  VND,
+  USD
+}

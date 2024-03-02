@@ -5,6 +5,8 @@ import { ProductModule } from './product/product.module'
 import { ImageModule } from './image/image.module'
 import { CartModule } from './cart/cart.module'
 import { OrderModule } from './order/order.module'
+import { WalletModule } from './wallet/wallet.module'
+import { PaymentModule } from './payment/payment.module'
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { OrderModule } from './order/order.module'
     ProductModule,
     ImageModule,
     CartModule,
-    OrderModule
+    OrderModule,
+    WalletModule,
+    PaymentModule
   ],
   controllers: [],
   providers: []
