@@ -1,7 +1,15 @@
 "use client";
 
-import { Dispatch, SetStateAction, createContext, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useMemo,
+  useState,
+} from "react";
 import { ProductCheckout } from "@/types/products";
+import { User } from "@/types/utils";
+import { useSession } from "next-auth/react";
 
 type TProductDelete = {
   id?: string;
@@ -16,6 +24,7 @@ interface AppContextInterface {
   handleCloseAlertDialog: () => void;
   productDelete: TProductDelete;
   handleChangeProductDelete: (data: TProductDelete) => void;
+  currentUser: User | null;
 }
 
 const initialAppContext: AppContextInterface = {
@@ -30,6 +39,7 @@ const initialAppContext: AppContextInterface = {
   handleCloseAlertDialog: () => null,
   productDelete: {},
   handleChangeProductDelete: () => null,
+  currentUser: null,
 };
 
 export const AppContext = createContext<AppContextInterface>(initialAppContext);
@@ -39,6 +49,13 @@ export const AppContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { data } = useSession();
+
+  const currentUser = useMemo(
+    () => (data?.user as User) || initialAppContext.currentUser,
+    [data]
+  );
+
   const [productOrder, setProductOrder] = useState<ProductCheckout[]>(
     initialAppContext.productOrder || []
   );
@@ -77,6 +94,7 @@ export const AppContextProvider = ({
         handleCloseAlertDialog,
         productDelete,
         handleChangeProductDelete,
+        currentUser,
       }}
     >
       {children}

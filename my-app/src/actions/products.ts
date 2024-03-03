@@ -12,12 +12,14 @@ export const getProducts = async ({
   sort,
   dir,
   search,
+  user_id,
 }: {
   page?: number;
   limit?: number;
   sort?: string;
   dir?: TSortDirection;
   search?: string;
+  user_id?: string;
 }) => {
   const searchParams: {
     [key: string]: string;
@@ -32,6 +34,10 @@ export const getProducts = async ({
 
   if (search) {
     searchParams["search"] = encodeURIComponent(search);
+  }
+
+  if (user_id) {
+    searchParams["user_id"] = user_id;
   }
 
   const res = await fetch(

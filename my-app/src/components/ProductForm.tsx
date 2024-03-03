@@ -77,7 +77,7 @@ export default function ProductForm({ initData }: { initData?: IProduct }) {
         });
       }
       router.refresh();
-      // router.push("/products/manage");
+      router.push("/products/manage");
       toast.success(`${initData ? "Cập nhật" : "Tạo"} sản phẩm thành công`);
     } catch (error) {
       console.log(error);
