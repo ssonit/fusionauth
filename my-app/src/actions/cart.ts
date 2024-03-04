@@ -9,12 +9,14 @@ export const getProductsCart = async ({
   sort,
   dir,
   user_id,
+  enabled = true
 }: {
   page?: number;
   limit?: number;
   sort?: string;
   dir?: ESortDirection;
   user_id?: string;
+  enabled?: boolean;
 }) => {
   const searchParams: {
     [key: string]: string;
@@ -30,6 +32,8 @@ export const getProductsCart = async ({
   if (user_id) {
     searchParams["user_id"] = user_id;
   }
+
+  if(!enabled) return null;
 
   const res = await fetch(
     "http://localhost:3002/api/cart?" + new URLSearchParams(searchParams),

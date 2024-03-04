@@ -55,7 +55,14 @@ export const getProducts = async ({
   return data;
 };
 
-export const getProductId = async (id: string) => {
+export const getProductId = async ({
+  id,
+  enabled = true,
+}: {
+  id: string;
+  enabled?: boolean;
+}) => {
+  if (!enabled) return null;
   const res = await fetch("http://localhost:3002/api/product/" + id, {
     method: "GET",
     headers: {

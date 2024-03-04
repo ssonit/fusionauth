@@ -12,6 +12,7 @@ import { User } from "@/types/utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { IImage } from "@/types/products";
+import RedirectSignInButton from "@/components/RedirectSignInButton";
 
 export default async function ManageProducts({
   searchParams,
@@ -23,6 +24,8 @@ export default async function ManageProducts({
   const search = (searchParams?.search as string) || "";
   const page = searchParams?.page as string;
   const limit = searchParams?.limit as string;
+
+  if (!session) return <RedirectSignInButton></RedirectSignInButton>;
 
   const {
     data: { data, total },

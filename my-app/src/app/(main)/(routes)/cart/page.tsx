@@ -6,20 +6,25 @@ import { Separator } from "@/components/ui/separator";
 import { ESortDirection } from "@/types/products";
 import { User } from "@/types/utils";
 import { getServerSession } from "next-auth";
+import { signIn } from "next-auth/react";
 
 export default async function ShoppingCart() {
   const session = await getServerSession(authOptions);
 
   const currentUser = session?.user as User;
-  const { data } = await getProductsCart({
+  const data = await getProductsCart({
     page: 1,
     limit: 10,
     sort: "createdAt",
     dir: ESortDirection.DESC,
-    user_id: currentUser.id,
+    user_id: currentUser?.id,
+    enabled: Boolean(currentUser?.id),
   });
 
-  console.log(data.data);
+  if (!session || !data) {
+    signIn();
+    return;
+  }
 
   return (
     <section className="relative">
@@ -34,7 +39,7 @@ export default async function ShoppingCart() {
 
       <Separator></Separator>
 
-      <CartMain initCarts={data.data}></CartMain>
+      <CartMain initCarts={data.data.data}></CartMain>
     </section>
   );
 }

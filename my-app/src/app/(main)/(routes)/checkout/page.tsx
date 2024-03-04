@@ -4,13 +4,22 @@ import { useEffect, useState } from "react";
 import BackButton from "@/components/BackButton";
 import CheckoutClient from "@/components/CheckoutClient";
 import { Separator } from "@/components/ui/separator";
+import { useSession } from "next-auth/react";
+import RedirectSignInButton from "@/components/RedirectSignInButton";
 
 export default function Checkout() {
+  const { status } = useSession();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (status === "authenticated") {
+      setIsClient(true);
+    }
+  }, [status]);
+
+  if (status === "unauthenticated") {
+    return <RedirectSignInButton></RedirectSignInButton>;
+  }
 
   return (
     <section>

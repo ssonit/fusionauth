@@ -14,15 +14,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icons } from "./Icons";
 import { Separator } from "./ui/separator";
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function UserButtonCustom() {
   const { status } = useSession();
   const router = useRouter();
 
+  const handleSignOut = () => {
+    signOut();
+  };
+
   if (status === "unauthenticated")
     return (
-      <Button variant={"outline"} onClick={() => router.push("/sign-in")}>
+      <Button variant={"outline"} onClick={() => signIn()}>
         Đăng nhập
       </Button>
     );
@@ -89,6 +93,7 @@ export default function UserButtonCustom() {
               variant={"ghost"}
               size={"sm"}
               className="my-0.5 w-full justify-start px-2"
+              onClick={handleSignOut}
             >
               <Icons.Logout className="mr-2 h-4 w-4"></Icons.Logout> Đăng xuất
             </Button>

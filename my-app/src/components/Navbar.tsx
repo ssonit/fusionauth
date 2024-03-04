@@ -10,12 +10,17 @@ import { User } from "@/types/utils";
 
 export default async function Navbar() {
   const session = await getServerSession(authOptions);
+
   const currentUser = session?.user as User;
-  const { data } = await getProductsCart({
+  const data = await getProductsCart({
     page: 1,
     limit: 10,
-    user_id: currentUser.id,
+    user_id: currentUser?.id,
+    enabled: Boolean(currentUser?.id),
   });
+
+  const total = data ? data.data.total : 0;
+
   return (
     <nav className="sticky left-0 top-0 z-40 w-full bg-white bg-opacity-40 py-3 shadow-lg">
       <div className="container flex items-center justify-between">
@@ -31,7 +36,7 @@ export default async function Navbar() {
         <div className="ml-6 mr-2 w-[50%] lg:ml-56">
           <SearchBar></SearchBar>
         </div>
-        <NavbarList count={data.total}></NavbarList>
+        <NavbarList count={total}></NavbarList>
         <div className="hidden md:block">
           <UserButtonCustom></UserButtonCustom>
         </div>

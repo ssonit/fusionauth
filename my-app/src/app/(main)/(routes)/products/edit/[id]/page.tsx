@@ -1,16 +1,23 @@
 import { getProductId } from "@/actions/products";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ProductForm from "@/components/ProductForm";
+import RedirectSignInButton from "@/components/RedirectSignInButton";
 import SectionTitle from "@/components/SectionTitle";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getServerSession } from "next-auth";
+import { signIn } from "next-auth/react";
 
 export default async function EditProduct({
   params,
 }: {
   params: { id: string };
 }) {
-  const data = await getProductId(params.id);
+  const session = await getServerSession(authOptions);
 
-  if (!data) return null;
+  const data = await getProductId({ id: params.id, enabled: Boolean(session) });
+
+  if (!data) return <RedirectSignInButton></RedirectSignInButton>;
 
   return (
     <section>

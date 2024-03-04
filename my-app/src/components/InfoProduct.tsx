@@ -18,17 +18,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { IImage, IProduct } from "@/types/products";
 import instance from "@/lib/instance";
 import { useSession } from "next-auth/react";
+import { User } from "@/types/utils";
 
 export default function InfoProduct({ product }: { product: IProduct }) {
   const router = useRouter();
   const { data } = useSession();
-  const user_id = (data?.user as any).id;
+  const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const user_id = (data?.user as User)?.id || null;
 
   const {
     images,
@@ -40,18 +42,17 @@ export default function InfoProduct({ product }: { product: IProduct }) {
   } = product;
   const url = (images as IImage[])?.[0].url;
 
-  const [quantity, setQuantity] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
   const handleChange = (value: number) => {
     setQuantity(value);
   };
 
-  console.log(id);
-
   const handleAddCart = async () => {
     try {
       // Nên thêm disabled để tránh người dùng spam liên tục
+      if (!user_id) {
+        toast.error("Vui lòng đăng nhập");
+        return;
+      }
       setIsLoading(true);
       await instance.post("/api/cart/create", {
         user_id,
