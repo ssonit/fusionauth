@@ -47,7 +47,7 @@ export default function CheckoutFormPayment() {
                       <RadioGroupItem value="1" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Thanh toán qua Zalo Pay
+                      Thanh toán qua PayPal
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>

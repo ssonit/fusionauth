@@ -43,23 +43,27 @@ export default function CheckoutClient() {
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const res = await instance.post("/api/order/create-many", {
-        product_order: productOrder.map((item) => ({
-          product_id: item.id,
-          quantity: item.quantity,
-        })),
-        user_id: currentUser.id,
-        username: values.info.username,
-        address: values.info.address,
-        phone: values.info.phone,
-        notes: values.info.notes,
-        payment_type: values.payment.type,
-      });
-      const data = res.data;
-      router.refresh();
-      toast.success("Đặt hàng thành công");
-      //   router.push('/products/order');
-      console.log({ values });
+      if (values.payment.type === PaymentType.PAYPAL.toString()) {
+        router.push("/payment");
+      } else if (values.payment.type === PaymentType.COD.toString()) {
+        const res = await instance.post("/api/order/create-many", {
+          product_order: productOrder.map((item) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+          })),
+          user_id: currentUser.id,
+          username: values.info.username,
+          address: values.info.address,
+          phone: values.info.phone,
+          notes: values.info.notes,
+          payment_type: values.payment.type,
+        });
+        const data = res.data;
+        router.refresh();
+        toast.success("Đặt hàng thành công");
+        //   router.push('/products/order');
+        console.log({ values });
+      }
     } catch (error) {
       toast.error("Something went wrong");
     }

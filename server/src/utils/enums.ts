@@ -10,7 +10,7 @@ export enum SortDirection {
 
 export enum PaymentType {
   COD,
-  ZALO
+  PAYPAL
 }
 
 export enum CurrencyWallet {

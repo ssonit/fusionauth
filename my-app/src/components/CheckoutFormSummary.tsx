@@ -17,6 +17,7 @@ export default function CheckoutFormSummary() {
   const [isLoading, setIsLoading] = useState(false);
   const [orders, setOrders] = useState<IProduct[]>([]);
   const { productOrder } = useContext(AppContext);
+
   const ids = useMemo(
     () => productOrder.map((item) => item.id).join(","),
     [productOrder]

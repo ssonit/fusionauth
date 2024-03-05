@@ -1,4 +1,4 @@
 export enum PaymentType {
   COD,
-  ZALO,
+  PAYPAL,
 }
