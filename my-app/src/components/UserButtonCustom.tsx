@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +17,6 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function UserButtonCustom() {
   const { status } = useSession();
-  const router = useRouter();
 
   const handleSignOut = () => {
     signOut();

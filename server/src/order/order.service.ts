@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Order } from 'src/schemas/Order.schema'
-import { CreateOrderManyDto } from './dto'
+import { CreateOrderManyDto, QueryOrderDto } from './dto'
+import { SortDirection } from 'src/utils/enums'
 
 @Injectable()
 export class OrderService {
@@ -29,6 +30,70 @@ export class OrderService {
       const data = await this.orderModel.insertMany(created_orders)
 
       return { data, msg: 'Create many order successfully' }
+    } catch (error) {
+      return error
+    }
+  }
+
+  async getOrders(payload: QueryOrderDto) {
+    try {
+      const page = Number(payload.page) || 1
+      const limit = Number(payload.limit) || 10
+
+      const sort = payload.sort || 'createdAt'
+      const dir = payload.dir || SortDirection.DESC
+
+      const { search, user_id, ids } = payload
+
+      if (page <= 0) throw new BadRequestException('Page must be greater than zero')
+
+      const per_page = (page - 1) * limit
+
+      let filter = {}
+      if (search) {
+        filter = {
+          $text: {
+            $search: search
+          }
+        }
+      }
+
+      if (user_id) filter['user_id'] = user_id
+
+      // ids = id1,id2
+
+      if (ids) {
+        filter['_id'] = {
+          $in: ids.split(',')
+        }
+      }
+
+      console.log(filter)
+
+      const [data, total] = await Promise.all([
+        this.orderModel
+          .find(filter)
+          .limit(limit)
+          .skip(per_page)
+          .sort({
+            [sort]: dir
+          }),
+        this.orderModel.aggregate([
+          {
+            $match: filter
+          },
+          {
+            $count: 'total'
+          }
+        ])
+      ])
+
+      return {
+        data,
+        page,
+        limit,
+        total: total[0]?.total || 0
+      }
     } catch (error) {
       return error
     }

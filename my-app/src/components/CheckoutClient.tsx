@@ -56,7 +56,7 @@ export default function CheckoutClient() {
           address: values.info.address,
           phone: values.info.phone,
           notes: values.info.notes,
-          payment_type: values.payment.type,
+          payment_type: 0,
         });
         const data = res.data;
         router.refresh();

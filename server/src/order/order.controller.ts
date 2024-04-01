@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { OrderService } from './order.service'
-import { CreateOrderManyDto } from './dto'
+import { CreateOrderManyDto, QueryOrderDto } from './dto'
 
 @Controller('order')
 export class OrderController {
@@ -9,5 +9,19 @@ export class OrderController {
   @Post('/create-many')
   createOrderMany(@Body() body: CreateOrderManyDto) {
     return this.orderService.createOrderMany(body)
+  }
+
+  @Get('')
+  async getOrders(@Query() query: QueryOrderDto) {
+    try {
+      const data = await this.orderService.getOrders(query)
+
+      return {
+        data,
+        msg: 'Get orders successfully'
+      }
+    } catch (error) {
+      return error
+    }
   }
 }

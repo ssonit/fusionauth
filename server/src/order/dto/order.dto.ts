@@ -10,6 +10,7 @@ import {
   IsString,
   ValidateNested
 } from 'class-validator'
+import { PaginationSearch } from 'src/utils/dto'
 import { PaymentType } from 'src/utils/enums'
 
 class ProductOrder {
@@ -54,3 +55,5 @@ export class CreateOrderManyDto {
   @IsEnum(PaymentType)
   payment_type: PaymentType
 }
+
+export class QueryOrderDto extends PaginationSearch {}
